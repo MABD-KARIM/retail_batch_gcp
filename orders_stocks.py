@@ -22,6 +22,9 @@ with open("orders.csv",mode="w") as file:
   writer = csv.writer(file)
   writer.writerow(header)
   while debut!= date.today():
+    for index,item in enumerate(s):
+      if item <15:
+        s[index]=50
     n=random.randint(500,1000)
     for i in range(n):
       row=[]
@@ -35,8 +38,8 @@ with open("orders.csv",mode="w") as file:
       qty=random.choice(qtes)
       row.append(qty)
       if s[product-1]>qty:
-        s[product-1]-=qty
         IsHonored=True
+        s[product-1]-=qty
       else:
         IsHonored=False
       row.append(IsHonored)
@@ -47,11 +50,7 @@ with open("orders.csv",mode="w") as file:
         stock=[]
         stock.append(debut)
         stock.append(index+1)
-        if product<30:
-          product=100
         stock.append(product)
         writer_stock.writerow(stock)
     debut+=timedelta(days=1)
-with open("last_line.csv", mode="w") as file:
-  writer=csv.writer(file)
-  writer.writerow([id])
+
