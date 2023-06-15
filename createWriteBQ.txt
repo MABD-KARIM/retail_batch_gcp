@@ -1,0 +1,82 @@
+Creation of a table in BQ and loading data into it :
+
+To create a BigQuery table and inject data from a CSV file into it using Python, you can use the `google-cloud-bigquery` library. Follow these steps to accomplish this:
+
+1. Install the `google-cloud-bigquery` library if you haven't already:
+   ```
+   pip install google-cloud-bigquery
+   ```
+
+2. Make sure you have a service account key file in JSON format that has the necessary permissions to create a table and insert data into it. If you don't have one, follow the instructions in the official Google Cloud documentation to create a service account and generate the key file: [Creating and managing service account keys](https://cloud.google.com/iam/docs/creating-managing-service-account-keys)
+
+3. Place the service account key file in the directory where your Python script resides.
+
+4. Import the necessary modules and initialize the BigQuery client using your service account key:
+
+```python
+from google.cloud import bigquery
+
+# Path to your service account key JSON file
+key_path = 'path/to/your/key.json'
+
+# Initialize the BigQuery client
+client = bigquery.Client.from_service_account_json(key_path)
+```
+
+5. Define the BigQuery dataset and table names:
+
+```python
+dataset_name = 'your_dataset_name'
+table_name = 'your_table_name'
+```
+
+6. Define the schema of the table. This step is optional, but if your CSV file has specific data types for columns, it's recommended to define the schema to ensure correct data insertion:
+
+```python
+from google.cloud.bigquery import SchemaField
+
+schema = [
+    SchemaField('column_name1', 'STRING'),
+    SchemaField('column_name2', 'INTEGER'),
+    # Add more SchemaField objects for each column
+]
+```
+
+7. Create the BigQuery table:
+
+```python
+table_ref = client.dataset(dataset_name).table(table_name)
+table = bigquery.Table(table_ref, schema=schema)
+
+# Create the table in BigQuery
+table = client.create_table(table)
+```
+
+8. Read the CSV file and insert its data into the BigQuery table:
+
+```python
+filename = 'path/to/your/file.csv'
+
+# Load data into the table
+with open(filename, 'rb') as source_file:
+    job_config = bigquery.LoadJobConfig()
+    job_config.source_format = bigquery.SourceFormat.CSV
+    job_config.skip_leading_rows = 1  # If your CSV file has a header row, skip it.
+    job_config.autodetect = True  # Automatically detect the schema from the CSV file.
+    
+    # Start the load job
+    load_job = client.load_table_from_file(source_file, table_ref, job_config=job_config)
+    load_job.result()  # Wait for the job to complete
+
+# Check the status of the load job
+if load_job.state == 'DONE':
+    print('Data loaded successfully!')
+else:
+    print('Error loading data:', load_job.errors)
+```
+
+Make sure to replace `'your_dataset_name'`, `'your_table_name'`, `'path/to/your/key.json'`, and `'path/to/your/file.csv'` with the appropriate values for your setup.
+
+The code above creates a BigQuery table with the provided schema and then loads the data from the CSV file into the table. The `autodetect` option allows BigQuery to automatically infer the schema from the CSV file.
+
+Remember to handle any exceptions that may occur during the process, and ensure that the service account key file has the necessary permissions to create tables and insert data.

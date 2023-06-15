@@ -1,38 +1,30 @@
-import pandas as pd
-import csv
-from datetime import datetime, timedelta, date
-import random
 import psycopg2
+import csv
 
+# PostgreSQL connection details
+host = 'localhost'
+database = 'retail'
+user = 'postgres'
+password = '1234'
 
-
-conn = psycopg2.connect(
-    host="localhost",
-    port="5432",
-    database="retail",
-    user="postgres",
-    password="1234"
+# Establish a connection to the PostgreSQL database
+connection = psycopg2.connect(
+    host=host,
+    database=database,
+    user=user,
+    password=password
 )
-cursor=conn.cursor()
 
-# Execute the SQL query to count the number of rows in the table
-query = f"SELECT stockqty FROM stocks WHERE stockdate=(SELECT MAX(stockdate) FROM stocks);"
+# Create a cursor object to interact with the database
+cursor = connection.cursor()
+
+# SQL query to fetch data from the table
+query = "SELECT * FROM customers"
+
+# Execute the query
 cursor.execute(query)
 
+print(cursor.description)
 
-# Fetch the result
-results = cursor.fetchall()
-s=[]
-for result in results:
-    s.append(result[0])
-
-query = "SELECT MAX(orderid) from orders;"
-cursor.execute(query)
-id=cursor.fetchone()[0]
-print(id)
-
-query = "SELECT max(orderdate) FROM ORDERS;"
-cursor.execute(query)
-today = cursor.fetchone()[0]
-today+=timedelta(days=1)
-print(today)
+cursor.close()
+connection.close()
