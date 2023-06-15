@@ -42,6 +42,17 @@ def upload_to_bq(dataset, table, schema_list):
         print("There is an error in the job")
 
 
+# Upload Customers :
+table = "Customers"
+dataset = "retail_test"
+schema_list = [
+    ("cusId","INTEGER"),
+    ("cusFirstName","STRING"),
+    ("cusLastName","STRING"),
+    ("custCity","STRING")
+          ]
+
+upload_to_bq(dataset,table,schema_list)
 
 # Upload Products :
 table = "Products"
